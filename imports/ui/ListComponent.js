@@ -66,7 +66,7 @@ class DeleteList extends Component{
             Card.remove(this.props.cards[i]._id);
         }
         //delete the List it self
-        List.remove(this.props.list);
+        Meteor.call('lists.remove',this.props.list);
     }
 
     render(){
@@ -83,17 +83,12 @@ class AddCard extends Component{
     constructor(props){
         super(props)
         this.handleAddCard = this.handleAddCard.bind(this);
-        this.addCard = this.addCard.bind(this);
-    }
-
-    addCard(title,content){
-        Card.insert({title:title,content:content,list:this.props.list,dateAdded: new Date()});
     }
 
     handleAddCard(){
         let content = this.refs.addCardContent.value;
         let title = this.refs.addCardTitle.value;
-        this.addCard(title,content);
+        Meteor.call('cards.insert',title,content,this.props.list);
         ReactDOM.findDOMNode(this.refs.addCardTitle).value = '';
         ReactDOM.findDOMNode(this.refs.addCardContent).value = '';
     }
@@ -137,7 +132,7 @@ class AddCard extends Component{
     }
 }
 export default withTracker(props => {
-
+    Meteor.subscribe('cards');
     return {
         cards: Card.find({list:props.list._id}).fetch(),
     };

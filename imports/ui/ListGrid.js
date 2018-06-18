@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ListComponent from './ListComponent.js';
 import { withTracker } from 'meteor/react-meteor-data';
+import { Meteor } from 'meteor/meteor';
 import { List } from '../api/List.js';
 import ReactDOM from 'react-dom'
 
@@ -18,8 +19,8 @@ class ListGrid extends Component{
 
     render(){
         let lists = this.props.lists.map(
-            (list) => this.mapList(list)
-        )
+            (list,key) => this.mapList(list,key)
+        );
         if(lists.length>0) {
             return (
                 <div>
@@ -44,16 +45,12 @@ class AddList extends Component{
     constructor(props){
         super(props)
         this.handleAddList = this.handleAddList.bind(this);
-        this.addList = this.addList.bind(this);
     }
 
-    addList(listName){
-        List.insert({name:listName,dateAdded: new Date()});
-    }
 
     handleAddList(){
         let listName = this.refs.addList.value;
-        this.addList(listName);
+        Meteor.call('lists.insert',listName);
         ReactDOM.findDOMNode(this.refs.addList).value = '';
     }
     render(){
@@ -94,6 +91,7 @@ class AddList extends Component{
 
 
 export default withTracker(() => {
+    Meteor.subscribe('lists');
     return {
         lists: List.find({}).fetch(),
     };
